@@ -70,7 +70,7 @@ const loginUserByEmail = async (req, res) => {
     return res
       .cookie("accesstoken", accesstoken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
+        secure: false,
         sameSite: "lax",
       })
       .cookie("refreshtoken", refreshtoken, {
@@ -257,7 +257,7 @@ const allDeviceLogout = async (req, res) => {
 
 const checkUser = async (req, res) => {
   try {
-    const id = req.user._id; 
+    const id = req.user.id; 
     if (!id) {
       console.log("User not found");
       return res.status(400).json({ error: "User not found" });

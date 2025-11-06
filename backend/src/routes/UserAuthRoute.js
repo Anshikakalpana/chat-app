@@ -12,5 +12,5 @@ router.post('/refresh', userController.refreshToken);
 router.post('/logout', userController.logout);
 router.post('/logout/all', userController.allDeviceLogout);
 router.put('/update',authMiddleware, userController.updateProfile);
-router.get('checkuser',authMiddleware,userController.checkUser);
+router.get('/checkuser',authMiddleware,userController.checkUser);
 export const userroutes = router;
