@@ -1,6 +1,11 @@
-import express from "express"
-import authMiddleware from "../middlewares/auth";
-import message from "../controllers/messageContacts";
+import express from "express";
+import { authMiddleware } from "../middlewares/auth.js";
+import message from "../controllers/messageContacts.js";
 
-const router = express.router();
-router.post('/getcontact' ,authMiddleware , message.getContacts)
+const router = express.Router();
+
+router.get("/getcontacts", authMiddleware, message.getContacts);
+router.get("/:id", authMiddleware, message.getMessages);
+router.post("/:id", authMiddleware, message.sendMessage);
+
+export const messageroutes = router;

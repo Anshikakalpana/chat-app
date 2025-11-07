@@ -1,96 +1,164 @@
-import Message from "../models/messageSchema";
-import { v2 as cloudinary } from "cloudinary";
+
+// import cloudinary from "../config/cloudinary.js";
+
+// import User from "../models/userSchema.js";
+// import Message from "../models/messageSchema.js";
 
 
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET
-});
 
-const getContacts= async(req ,res)=>{
-     try{
-        const currUser= req.user._id;
-        const filteredUsers= await User.find({
-            _id:{
-                $ne: currUser
-            }
 
-        }).select("-password");
-        res.status(200).json(filteredUsers);
+// const getContacts = async (req, res) => {
+//   try {
+//     const currUser = req.user._id;
+//     const filteredUsers = await User.find({ _id: { $ne: currUser } }).select("-password");
+//     res.status(200).json(filteredUsers);
+//   } catch (err) {
+//     console.error("❌ Error fetching contacts:", err);
+//     res.status(500).json({ error: "Failed to fetch contacts" });
+//   }
+// };
 
-         }catch(err){
-            console.error("error from getting users");
-            res.status(500).json({error:"pataaa nhi"})
-         }
+// // ✅ Get all messages between two users
+// const getMessages = async (req, res) => {
+//   try {
+//     const { id: receiverId } = req.params;
+//     const senderId = req.user._id;
 
-        }
+//     const messages = await Message.find({
+//       $or: [
+//         { senderId, receiverId },
+//         { senderId: receiverId, receiverId: senderId },
+//       ],
+//     }).sort({ createdAt: 1 });
 
-const getmessages= async (req,res)=>{
-    try{
-        const {id:receiverId} = req.params
-        const senderId= req.user._id;
+//     return res.status(200).json(messages);
+//   } catch (err) {
+//     console.error("❌ Error fetching messages:", err);
+//     return res.status(500).json({ error: "Failed to fetch messages" });
+//   }
+// };
 
-        const messages = await Message.find({
-            $or:[
-                {
-                    senderId: senderId, receiverId:receiverId
-                },
-                 {
-                    senderId: receiverId, receiverId:senderId
-                }
+// const sendMessage = async (req, res) => {
+//   try {
+//     const { text, image } = req.body;
+//     const { id: receiverId } = req.params;
+//     const senderId = req.user._id;
 
-            ]
-        })
+//     let imageUrl = "";
+//     if (image) {
+//       const uploadResponse = await cloudinary.uploader.upload(image, {
+//         folder: "chat_images",
+//         transformation: [
+//           { width: 1080, crop: "limit" },
+//           { quality: "auto", fetch_format: "auto" },
+//         ],
+//       });
+//       imageUrl = uploadResponse.secure_url;
+//     }
 
-   return res.send({
-    message:"everything fine with getmessages"
-   })
-    }catch(err){
-         return res.send({
-    message:"nothing fine with getmessages"
-   })
-      
+//     const newMessage = new Message({
+//       senderId,
+//       receiverId,
+//       text,
+//       image: imageUrl,
+//     });
+
+//     await newMessage.save();
+
+//     return res.status(201).json({
+//       message: "Message sent successfully",
+//       data: newMessage,
+//     });
+//   } catch (err) {
+//     console.error("❌ Message delivery failed:", err);
+//     return res.status(500).json({ error: "Message delivery failed" });
+//   }
+// };
+
+
+// export default {
+//   getContacts,
+//   getMessages,
+//   sendMessage,
+// };
+import cloudinary from "../lib/cloudinary.js";
+import User from "../models/userSchema.js";
+import Message from "../models/messageSchema.js";
+
+const getContacts = async (req, res) => {
+  try {
+    const currUser = req.user._id;
+    const filteredUsers = await User.find({ _id: { $ne: currUser } }).select("-password");
+    res.status(200).json(filteredUsers);
+  } catch (err) {
+    console.error("❌ Error fetching contacts:", err);
+    res.status(500).json({ error: "Failed to fetch contacts" });
+  }
+};
+
+const getMessages = async (req, res) => {
+  try {
+    const { id: receiverId } = req.params;
+    const senderId = req.user._id;
+
+    const messages = await Message.find({
+      $or: [
+        { senderId, receiverId },
+        { senderId: receiverId, receiverId: senderId },
+      ],
+    }).sort({ createdAt: 1 });
+
+    return res.status(200).json(messages);
+  } catch (err) {
+    console.error("❌ Error fetching messages:", err);
+    return res.status(500).json({ error: "Failed to fetch messages" });
+  }
+};
+
+const sendMessage = async (req, res) => {
+  try {
+    const { text, image } = req.body;
+    const { id: receiverId } = req.params;
+    const senderId = req.user._id;
+
+    console.log("🖼️ Incoming image:", typeof image, image?.slice(0, 50)); // log first 50 chars
+
+    let imageUrl = "";
+    if (image) {
+      // ensure it’s a base64 string
+      if (typeof image !== "string") {
+        return res.status(400).json({ error: "Invalid image format" });
+      }
+
+      const uploadResponse = await cloudinary.uploader.upload(image, {
+        folder: "chat_images",
+        transformation: [
+          { width: 1080, crop: "limit" },
+          { quality: "auto", fetch_format: "auto" },
+        ],
+      });
+
+      imageUrl = uploadResponse.secure_url;
     }
-}
 
-const sendMessages= async(req , res)=>{
-    try{
-        const {text, image}= req.body;
-         const {id:receiverId} = req.params;
-         const senderId= req.user._id;
+    const newMessage = new Message({
+      senderId,
+      receiverId,
+      text,
+      image: imageUrl,
+    });
 
-         let newImage ;
-         if(image){
-            
-            const uploadResponse = await cloudinary.uploader.upload(image, {
-                folder: "chat_images",
-                transformation: [
-                    { width: 1080, crop: "limit" }, // limit large image sizes
-                    { quality: "auto", fetch_format: "auto" } // compress automatically
-                ]
-            });
-            newImage = uploadResponse.secure_url;
-         }
+    await newMessage.save();
 
-         const newmess= new Message({
-            senderId, receiverId , text , image:newImage
+    return res.status(201).json({
+      message: "Message sent successfully",
+      data: newMessage,
+    });
+  } catch (err) {
+    console.error("❌ Message delivery failed:", err);
+    return res.status(500).json({ error: "Message delivery failed" });
+  }
+};
 
-         })
 
-      await newmess.save();
-   res.status(201).json({
- message:"message sent successfully"
-   })
-    }
-catch(err){
-  console.error("message delivery failed:", err);
-  return res.status(500).send("message delivery failed");
-}
-}
-
-export default message={
-    getContacts,
-    getmessages,
-    sendMessages
-}
+export default { getContacts, getMessages, sendMessage };

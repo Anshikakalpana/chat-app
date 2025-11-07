@@ -61,8 +61,8 @@ const loginUserByEmail = async (req, res) => {
     if (!isMatch)
       return res.status(401).json({ success: false, message: "Invalid credentials" });
 
-    const accesstoken = jwt.sign({ id: user._id, email }, process.env.JWT_SECRET, { expiresIn: "15m" });
-    const refreshtoken = jwt.sign({ id: user._id, email }, process.env.JWT_REFRESH_SECRET, { expiresIn: "7d" });
+    const accesstoken = jwt.sign({ _id: user._id, email }, process.env.JWT_SECRET, { expiresIn: "15m" });
+    const refreshtoken = jwt.sign({ _id: user._id, email }, process.env.JWT_REFRESH_SECRET, { expiresIn: "7d" });
 
     //await redis.sAdd(`refreshTokens:${email}`, refreshtoken);
     //await redis.expire(`refreshTokens:${email}`, 7 * 24 * 60 * 60);
@@ -107,8 +107,8 @@ const loginUserByNumber = async (req, res) => {
       return res.status(401).json({ success: false, message: "Invalid credentials" });
     }
 
-    const accesstoken = jwt.sign({ id: user._id, phoneNo }, process.env.JWT_SECRET, { expiresIn: "15m" });
-    const refreshtoken = jwt.sign({ id: user._id, phoneNo }, process.env.JWT_REFRESH_SECRET, { expiresIn: "7d" });
+    const accesstoken = jwt.sign({ _id: user._id, phoneNo }, process.env.JWT_SECRET, { expiresIn: "15m" });
+    const refreshtoken = jwt.sign({ _id: user._id, phoneNo }, process.env.JWT_REFRESH_SECRET, { expiresIn: "7d" });
 
    // await redis.sAdd(`refreshTokens:${phoneNo}`, refreshtoken);
     // await redis.expire(`refreshTokens:${phoneNo}`, 7 * 24 * 60 * 60);
@@ -257,7 +257,7 @@ const allDeviceLogout = async (req, res) => {
 
 const checkUser = async (req, res) => {
   try {
-    const id = req.user.id; 
+    const id = req.user._id; 
     if (!id) {
       console.log("User not found");
       return res.status(400).json({ error: "User not found" });

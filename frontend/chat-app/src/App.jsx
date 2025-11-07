@@ -5,6 +5,7 @@ import Loginemail from './Loginemail'
 import Loginnumber from './Loginnumber'
 import Profile from './Profile';
 import Navbar from './components/Navbar'
+import Dashboard from './Dashboard';
 import { authcheck } from './patanhi/authEv'
 import { useEffect } from 'react'
 import Signup from './Signup'
@@ -34,6 +35,7 @@ if(isCheckingAuth && !authUser) return (
           <Route path ="/loginnumber" element={<Loginnumber/> }/>
           {/* <Route path ="/settings" element={authUser? <Settings/> : <Navigate to="/login"/>}/>  */}
           <Route path ="/profile" element={authUser? <Profile/> : <Navigate to="/loginemail"/>}/>
+          <Route path ="/dashboard" element={authUser? <Dashboard/> : <Navigate to="/loginemail"/>}/>
     </Routes>
     </>
   )

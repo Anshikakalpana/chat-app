@@ -10,20 +10,21 @@ const Profile = () => {
     checkAuth();
   }, [checkAuth]);
 
-  const handleImage = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+ const handleImage = async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
 
-    const reader = new FileReader();
-    reader.onloadend = () => setImage(reader.result);
-    reader.readAsDataURL(file);
-
-    if (updateProfile) {
-      const formData = new FormData();
-      formData.append("profileImage", file);
-      await updateProfile(formData);
-    }
+  const reader = new FileReader();
+  reader.onloadend = async () => {
+    setImage(reader.result);
+    await updateProfile({
+      newprofile: reader.result 
+    });
   };
+
+  reader.readAsDataURL(file);
+};
+
 
   if (!authUser) {
     return (

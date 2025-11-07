@@ -3,25 +3,28 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
 import { userroutes } from "./src/routes/UserAuthRoute.js";
+import { messageroutes } from "./src/routes/messageRoutes.js";
 import cors from "cors";
 
 dotenv.config();
 
 const app = express();
-
-app.use(express.json());
-app.use(cookieParser());
-
 app.use(cors({
   origin: "http://localhost:5173", 
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true
 }));
+app.use(express.json());
+app.use(cookieParser());
 
-// Routes
+
+
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+
 app.use("/api/auth", userroutes);
-
+app.use("/api/messages", messageroutes);
 app.get("/", (req, res) => {
   res.send("Server is up and running");
 });
@@ -39,3 +42,4 @@ async function startServer() {
 }
 
 startServer();
+
