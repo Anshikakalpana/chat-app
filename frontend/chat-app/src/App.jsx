@@ -13,7 +13,8 @@ import {Loader} from "lucide-react"
 
 const App=() =>{
 
-const {authUser , checkAuth , isCheckingAuth}=authcheck();
+const {authUser , checkAuth , isRefreshing, onlineUsers}=authcheck();
+console.log({onlineUsers})
 useEffect(()=>{
   checkAuth();
 
@@ -21,7 +22,7 @@ useEffect(()=>{
 
 console.log({authUser})
 
-if(isCheckingAuth && !authUser) return (
+if( isRefreshing && !authUser) return (
   <div><Loader className="size-10 animate-spin"/></div>
 )
   return (

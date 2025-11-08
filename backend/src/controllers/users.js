@@ -81,6 +81,13 @@ const loginUserByEmail = async (req, res) => {
       .json({
         success: true,
         message: "Login successful",
+        user: {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          phoneNo: user.phoneNo,
+          profilePic: user.profilePic || null,
+        },
         accesstoken,
         refreshtoken,
       });
@@ -127,6 +134,13 @@ const loginUserByNumber = async (req, res) => {
       .json({
         success: true,
         message: "Login successful",
+        user: {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          phoneNo: user.phoneNo,
+          profilePic: user.profilePic || null,
+        },
         accesstoken,
         refreshtoken,
       });

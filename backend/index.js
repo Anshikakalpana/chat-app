@@ -5,10 +5,10 @@ import cookieParser from "cookie-parser";
 import { userroutes } from "./src/routes/UserAuthRoute.js";
 import { messageroutes } from "./src/routes/messageRoutes.js";
 import cors from "cors";
-
+import { app ,server } from "./src/lib/socket.js";
 dotenv.config();
 
-const app = express();
+
 app.use(cors({
   origin: "http://localhost:5173", 
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
@@ -35,7 +35,7 @@ async function startServer() {
     console.log("Database connected successfully");
 
     const PORT = process.env.PORT || 3000;
-    app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
+    server.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
   } catch (error) {
     console.error("Database connection failed:", error);
   }
