@@ -38,7 +38,7 @@ export const chatUser = create((set, get) => ({
   setSelectedUser: (selectedUser) => set({ selectedUser }),
 
   sendMessages: async (message) => {
-    const { selectedUser, messages } = get(); // ✅ now works
+    const { selectedUser, messages } = get();
     if (!selectedUser || !selectedUser._id) return;
 
     try {
@@ -49,4 +49,18 @@ export const chatUser = create((set, get) => ({
       console.log("Can't send messages:", err.response?.data || err.message);
     }
   },
+
+  subscribeToMessages: () => {
+    const {selectedUser}= get();if(!selectedUser) return;
+          
+    const socket = chatUser.getState().socket;
+    socket?.on("new-message", (newMessage) => {
+      set({ messages: [...get().messages, newMessage] });
+    });
+  },
+
+  unsubscribeFromMessages: () => {
+    const socket = chatUser.getState().socket;
+    socket?.off("new-message");
+  }
 }));

@@ -2,6 +2,9 @@ import React, { useEffect } from "react";
 import { chatUser } from "../patanhi/chatEv";
 import { Loader2 } from "lucide-react";
 
+import { authcheck } from "../patanhi/authEv";
+
+
 const Sidebar = () => {
   const {
     getUsers,
@@ -11,7 +14,7 @@ const Sidebar = () => {
     UsersLoading,
   } = chatUser();
 
-  const onlineUsers = ["123", "456"]; 
+  const { onlineUsers } = authcheck();
 
   useEffect(() => {
     getUsers();
@@ -27,22 +30,15 @@ const Sidebar = () => {
 
   return (
     <aside className="w-full sm:w-72 md:w-80 bg-gradient-to-b from-purple-50 to-purple-100 border-r border-purple-200 h-screen flex flex-col shadow-md transition-all">
-      
-
       <div className="px-6 py-4 border-b border-purple-200 flex justify-between items-center bg-gradient-to-r from-purple-100 to-purple-50">
-        <h2 className="text-xl font-semibold text-purple-500">
-          Chats
-        </h2>
-        <span className="text-sm text-purple-400">
-          {users.length} users
-        </span>
+        <h2 className="text-xl font-semibold text-purple-500">Chats</h2>
+        <span className="text-sm text-purple-400">{users.length} users</span>
       </div>
 
-      
       <div className="flex-1 overflow-y-auto px-2 py-3 scrollbar-thin scrollbar-thumb-purple-200">
         {users.map((user) => {
           const isSelected = selectedUser?._id === user._id;
-          const isOnline = onlineUsers.includes(user._id);
+          const isOnline = onlineUsers?.includes(user._id); // ✅ Works now
 
           return (
             <button
@@ -54,7 +50,6 @@ const Sidebar = () => {
                   : "hover:bg-purple-50"
               }`}
             >
-           
               <div className="relative">
                 <img
                   src={user.profile || "/avatar.png"}
@@ -66,13 +61,10 @@ const Sidebar = () => {
                 )}
               </div>
 
-             
               <div className="flex flex-col items-start text-left">
                 <p
                   className={`font-medium ${
-                    isSelected
-                      ? "text-purple-500"
-                      : "text-gray-700"
+                    isSelected ? "text-purple-500" : "text-gray-700"
                   }`}
                 >
                   {user.name}
@@ -85,11 +77,8 @@ const Sidebar = () => {
           );
         })}
 
-      
         {users.length === 0 && (
-          <p className="text-center text-purple-400 mt-10">
-            No users found
-          </p>
+          <p className="text-center text-purple-400 mt-10">No users found</p>
         )}
       </div>
     </aside>
@@ -97,4 +86,3 @@ const Sidebar = () => {
 };
 
 export default Sidebar;
-

@@ -18,11 +18,11 @@ console.log({onlineUsers})
 useEffect(()=>{
   checkAuth();
 
-}, [checkAuth]);
+}, []);
 
 console.log({authUser})
 
-if( isRefreshing && !authUser) return (
+if( isRefreshing ) return (
   <div><Loader className="size-10 animate-spin"/></div>
 )
   return (
