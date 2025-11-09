@@ -99,8 +99,8 @@ export const authcheck = create(
       connectSocket: () => {
         const { authUser } = get();
         if (!authUser || get().socket?.connected) return;
-
-        const socket = io("http://localhost:3000", {
+const backendURL = process.env.REACT_APP_SOCKET_URL || "http://localhost:3000";
+        const socket = io(backendURL, {
           query: { userId: authUser._id },
           transports: ["websocket"], 
         });
