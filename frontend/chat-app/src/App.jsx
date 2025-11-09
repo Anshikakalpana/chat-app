@@ -21,6 +21,9 @@ useEffect(()=>{
 }, []);
 
 console.log({authUser})
+console.log("✅VITE_API_URL:", import.meta.env.VITE_API_URL);
+
+
 
 if( isRefreshing ) return (
   <div><Loader className="size-10 animate-spin"/></div>
