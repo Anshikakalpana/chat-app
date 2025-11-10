@@ -10,32 +10,41 @@ import { app, server } from "./src/lib/socket.js";
 dotenv.config();
 
 
+app.set('trust proxy', 1); // required when behind Render / proxy
+
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://f-flux.onrender.com"
+  process.env.URL || "https://f-flux.onrender.com"
 ];
 
-app.use(cors({
-  origin: allowedOrigins,
-  credentials: true, 
-}));
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true); // allow curl/postman
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    return callback(new Error("CORS not allowed"));
+  },
+  credentials: true,
+  methods: ["GET","POST","PUT","DELETE","OPTIONS"],
+  allowedHeaders: ["Content-Type","Authorization"]
+};
 
+app.use(cors(corsOptions));
 
 
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(cookieParser());
 
-// ✅ Routes
+
 app.use("/api/auth", userroutes);
 app.use("/api/messages", messageroutes);
 
-// ✅ Default route
+
 app.get("/", (req, res) => {
   res.send("🚀 Server is up and running!");
 });
 
-// ✅ MongoDB Connection + Server Start
+
 async function startServer() {
   try {
     await mongoose.connect(process.env.MONGO_URL, {

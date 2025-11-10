@@ -27,15 +27,15 @@ export const authMiddleware = (req, res, next) => {
   }
 };
 
-// 🔹 Refresh logic (auto-renew token if access expired)
+/// ...existing code...
+const isProd = process.env.NODE_ENV === "production";
+
 export const verifyUser = (req, res, next) => {
   const token = req.cookies.accesstoken;
   const refreshToken = req.cookies.refreshtoken;
 
   if (!token && !refreshToken) {
-    return res
-      .status(401)
-      .json({ success: false, message: "No tokens found" });
+    return res.status(401).json({ success: false, message: "No tokens found" });
   }
 
   jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
@@ -44,43 +44,31 @@ export const verifyUser = (req, res, next) => {
       return next();
     }
 
-    // Token expired → check refresh token
     if (err.name === "TokenExpiredError" && refreshToken) {
-      jwt.verify(
-        refreshToken,
-        process.env.JWT_REFRESH_SECRET,
-        (refreshErr, refreshDecoded) => {
-          if (refreshErr) {
-            return res
-              .status(403)
-              .json({ success: false, message: "Invalid refresh token" });
-          }
-
-          // Generate new access token
-          const newAccessToken = jwt.sign(
-            { _id: refreshDecoded._id, email: refreshDecoded.email },
-            process.env.JWT_SECRET,
-            { expiresIn: "15m" }
-          );
-
-         const isProd = process.env.NODE_ENV === "production";
-
-res.cookie("accesstoken", newAccessToken, {
-  httpOnly: true,
-  sameSite: isProd ? "None" : "Lax",
-  secure: isProd,
-  maxAge: 15*60*1000
-});
-
-
-          req.user = refreshDecoded;
-          next();
+      jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET, (refreshErr, refreshDecoded) => {
+        if (refreshErr) {
+          return res.status(403).json({ success: false, message: "Invalid refresh token" });
         }
-      );
+
+        const newAccessToken = jwt.sign(
+          { _id: refreshDecoded._id, email: refreshDecoded.email },
+          process.env.JWT_SECRET,
+          { expiresIn: "15m" }
+        );
+
+        res.cookie("accesstoken", newAccessToken, {
+          httpOnly: true,
+          sameSite: isProd ? "none" : "lax", // <<< lowercase & uses isProd
+          secure: isProd,
+          maxAge: 15 * 60 * 1000,
+        });
+
+        req.user = refreshDecoded;
+        next();
+      });
     } else {
-      return res
-        .status(403)
-        .json({ success: false, message: "Invalid token" });
+      return res.status(403).json({ success: false, message: "Invalid token" });
     }
   });
 };
+// ...existing code...

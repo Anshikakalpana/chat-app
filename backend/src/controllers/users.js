@@ -156,6 +156,7 @@ return res
   }
 };
 
+// ...existing code...
 const refreshToken = async (req, res) => {
   try {
     const { refreshtoken } = req.cookies;
@@ -163,26 +164,25 @@ const refreshToken = async (req, res) => {
       return res.status(401).json({ success: false, message: "Missing refresh token" });
 
     const decoded = jwt.verify(refreshtoken, process.env.JWT_REFRESH_SECRET);
-    const identifier = decoded.email || decoded.phoneNo;
-    const key = `refreshTokens:${identifier}`;
 
-    const isMember = await redis.sIsMember(key, refreshtoken);
-    if (!isMember) {
-      res.clearCookie("accesstoken");
-      res.clearCookie("refreshtoken");
-      return res.status(403).json({ success: false, message: "Invalid session" });
-    }
+    // If you are not using Redis, skip redis checks
+    // (remove or re-enable redis logic if you do use it)
 
-    const newAccessToken = jwt.sign({ id: decoded.id, email: decoded.email, phoneNo: decoded.phoneNo }, process.env.JWT_SECRET, { expiresIn: "15m" });
-    const newRefreshToken = jwt.sign({ id: decoded.id, email: decoded.email, phoneNo: decoded.phoneNo }, process.env.JWT_REFRESH_SECRET, { expiresIn: "7d" });
+    const isProd = process.env.NODE_ENV === "production";
 
-    // await redis.sRem(key, refreshtoken);
-    // await redis.sAdd(key, newRefreshToken);
-    // await redis.expire(key, 7 * 24 * 60 * 60);
+    const newAccessToken = jwt.sign(
+      { id: decoded.id, email: decoded.email, phoneNo: decoded.phoneNo },
+      process.env.JWT_SECRET,
+      { expiresIn: "15m" }
+    );
+    const newRefreshToken = jwt.sign(
+      { id: decoded.id, email: decoded.email, phoneNo: decoded.phoneNo },
+      process.env.JWT_REFRESH_SECRET,
+      { expiresIn: "7d" }
+    );
 
-   res.cookie("accesstoken", newAccessToken, { httpOnly: true,  secure: isProd,   sameSite: isProduction ? "none" : "lax"});
-res.cookie("refreshtoken", newRefreshToken, { httpOnly: true, secure: isProd,   sameSite: isProduction ? "none" : "lax" });
-
+    res.cookie("accesstoken", newAccessToken, { httpOnly: true, secure: isProd, sameSite: isProd ? "none" : "lax" });
+    res.cookie("refreshtoken", newRefreshToken, { httpOnly: true, secure: isProd, sameSite: isProd ? "none" : "lax" });
 
     return res.json({ success: true, accesstoken: newAccessToken });
   } catch (err) {
@@ -192,6 +192,7 @@ res.cookie("refreshtoken", newRefreshToken, { httpOnly: true, secure: isProd,   
     return res.status(403).json({ success: false, message: "Invalid or expired refresh token" });
   }
 };
+// ...existing code...
 
 
 const updateProfile = async (req, res) => {
