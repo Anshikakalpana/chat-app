@@ -63,13 +63,15 @@ export const verifyUser = (req, res, next) => {
             { expiresIn: "15m" }
           );
 
-          // Update cookie
-          res.cookie("accesstoken", newAccessToken, {
-            httpOnly: true,
-            sameSite: "Lax",
-            secure: process.env.NODE_ENV === "production",
-            maxAge: 15 * 60 * 1000,
-          });
+         const isProd = process.env.NODE_ENV === "production";
+
+res.cookie("accesstoken", newAccessToken, {
+  httpOnly: true,
+  sameSite: isProd ? "None" : "Lax",
+  secure: isProd,
+  maxAge: 15*60*1000
+});
+
 
           req.user = refreshDecoded;
           next();

@@ -11,22 +11,15 @@ dotenv.config();
 
 
 const allowedOrigins = [
-  "http://localhost:5173",           // for local dev
-  "https://f-flux.onrender.com"      // your production frontend
+  "http://localhost:5173",
+  "https://f-flux.onrender.com"
 ];
 
 app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-  credentials: true,
+  origin: allowedOrigins,
+  credentials: true, 
 }));
+
 
 
 app.use(express.json({ limit: "10mb" }));

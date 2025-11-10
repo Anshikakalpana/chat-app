@@ -4,6 +4,17 @@ import User from "../models/userSchema.js";
 import cloudinary from "../lib/cloudinary.js";
 //import redis from "../config/redis.js";
 
+
+const setCookieOptions = () => {
+  const isProduction = process.env.NODE_ENV === "production";
+  return {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
+  };
+};
+
+
 const registerUser = async (req, res) => {
   try {
     const { email, password, phoneNo, name } = req.body;
@@ -29,7 +40,7 @@ const registerUser = async (req, res) => {
       email,
       password: hashed,
       phoneNo,
-      name, // ✅ added
+      name, 
     });
 
     return res.status(201).json({
@@ -46,7 +57,7 @@ const registerUser = async (req, res) => {
   }
 };
 
-
+const isProd = process.env.NODE_ENV === "production";
 const loginUserByEmail = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -68,16 +79,14 @@ const loginUserByEmail = async (req, res) => {
     //await redis.expire(`refreshTokens:${email}`, 7 * 24 * 60 * 60);
 
     return res
-      .cookie("accesstoken", accesstoken, {
-        httpOnly: true,
-        secure: false,
-        sameSite: "lax",
-      })
-      .cookie("refreshtoken", refreshtoken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-      })
+     .cookie("accesstoken", accesstoken, {
+    ...setCookieOptions(),
+    maxAge: 15 * 60 * 1000,
+  })
+  .cookie("refreshtoken", refreshtoken, {
+    ...setCookieOptions(),
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  })
       .json({
         success: true,
         message: "Login successful",
@@ -119,18 +128,15 @@ const loginUserByNumber = async (req, res) => {
 
    // await redis.sAdd(`refreshTokens:${phoneNo}`, refreshtoken);
     // await redis.expire(`refreshTokens:${phoneNo}`, 7 * 24 * 60 * 60);
-
-    return res
-      .cookie("accesstoken", accesstoken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-      })
-      .cookie("refreshtoken", refreshtoken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-      })
+return res
+     .cookie("accesstoken", accesstoken, {
+    ...setCookieOptions(),
+    maxAge: 15 * 60 * 1000,
+  })
+  .cookie("refreshtoken", refreshtoken, {
+    ...setCookieOptions(),
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  })
       .json({
         success: true,
         message: "Login successful",
@@ -174,8 +180,9 @@ const refreshToken = async (req, res) => {
     // await redis.sAdd(key, newRefreshToken);
     // await redis.expire(key, 7 * 24 * 60 * 60);
 
-    res.cookie("accesstoken", newAccessToken, { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax" });
-    res.cookie("refreshtoken", newRefreshToken, { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax" });
+   res.cookie("accesstoken", newAccessToken, { httpOnly: true,  secure: isProd,   sameSite: isProduction ? "none" : "lax"});
+res.cookie("refreshtoken", newRefreshToken, { httpOnly: true, secure: isProd,   sameSite: isProduction ? "none" : "lax" });
+
 
     return res.json({ success: true, accesstoken: newAccessToken });
   } catch (err) {
