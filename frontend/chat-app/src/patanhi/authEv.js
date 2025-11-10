@@ -16,21 +16,26 @@ export const authcheck = create(
       onlineUsers: [],
 
       checkAuth: async () => {
-        try {
-          const res = await axiosInstance.get("/auth/checkuser", {
-            withCredentials: true,
-          });
-       if (res.data) {
-  set({ authUser: res.data });
-            if (!get().socket) get().connectSocket();
-          }
-        } catch (err) {
-          console.log("Auth check failed:", err.response?.data || err.message);
-        } finally {
-          set({ isRefreshing: false });
-        }
-      },
+  const token = localStorage.getItem("token");
+  if (!token) return set({ authUser: null, isRefreshing: false });
 
+  try {
+    const res = await axiosInstance.get("/auth/checkuser", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (res.data?.success) {
+      set({ authUser: res.data.data });
+      if (!get().socket) get().connectSocket();
+    }
+  } catch (err) {
+    console.log("Auth check failed:", err.response?.data || err.message);
+    set({ authUser: null });
+  } finally {
+    set({ isRefreshing: false });
+  }
+}
+,
       signup: async (data) => {
         set({ isSigningUp: true });
         try {
