@@ -18,6 +18,9 @@ services:
     build:
       context: ./frontend/chat-app
       dockerfile: Dockerfile
+      args:
+        VITE_API_URL: "https://b-flux.onrender.com/api"
+        VITE_SOCKET_URL: "https://b-flux.onrender.com"
     container_name: chat-frontend
     ports:
       - "5173:80"
