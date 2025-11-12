@@ -6,10 +6,7 @@ const Profile = () => {
   const { authUser, isUpdatingProfile, updateProfile, checkAuth } = authcheck();
   const [image, setImage] = useState("");
 
-  useEffect(() => {
-    checkAuth();
-  }, [checkAuth]);
-
+ 
  const handleImage = async (e) => {
   const file = e.target.files[0];
   if (!file) return;

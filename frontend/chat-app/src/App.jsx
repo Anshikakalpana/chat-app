@@ -46,6 +46,3 @@ if( isRefreshing ) return (
 }
 
 export default App
-
-
-
