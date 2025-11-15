@@ -13,8 +13,8 @@ const isProd = import.meta.env.MODE === "production";
 
 export const axiosInstance = axios.create({
   baseURL: isProd
-    ? import.meta.env.VITE_API_URL // production backend
-    : "http://localhost:3000/api", // local backend
+    ? import.meta.env.VITE_API_URL 
+    : "http://localhost:3000/api", 
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",

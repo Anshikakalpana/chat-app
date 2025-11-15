@@ -8,8 +8,10 @@ import Navbar from './components/Navbar'
 import Dashboard from './Dashboard';
 import { authcheck } from './patanhi/authEv'
 import { useEffect } from 'react'
+import ChatPage from './components/ChatPage';
 import Signup from './Signup'
 import {Loader} from "lucide-react"
+import ChatContainer from './components/ChatContainer';
 
 const App=() =>{
 
@@ -33,13 +35,14 @@ if( isRefreshing ) return (
     <>
     <Navbar/>
     <Routes>
-      {/* <Route path ="/" element={authUser? <HomePage/> : <Navigate to="/login"/>}/> */}
+      <Route path ="/" element={authUser? <Dashboard/> : <Navigate to="/loginemail"/>}/>
        <Route path ="/signup" element={ <Signup/>}/>
          <Route path ="/loginemail" element={<Loginemail/> }/>
           <Route path ="/loginnumber" element={<Loginnumber/> }/>
           {/* <Route path ="/settings" element={authUser? <Settings/> : <Navigate to="/login"/>}/>  */}
           <Route path ="/profile" element={authUser? <Profile/> : <Navigate to="/loginemail"/>}/>
           <Route path ="/dashboard" element={authUser? <Dashboard/> : <Navigate to="/loginemail"/>}/>
+       <Route path="/chat" element={authUser ? <ChatPage /> : <Navigate to="/loginemail" />} />
     </Routes>
     </>
   )

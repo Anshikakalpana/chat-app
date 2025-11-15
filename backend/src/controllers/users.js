@@ -214,7 +214,7 @@ const updateProfile = async (req, res) => {
     newname = newname || currentUser.name;
     newprofile = newprofile || currentUser.profile;
     
-    const uploadResponse= await cloudinary.uploader.upload( newprofile)
+    const uploadResponse= await cloudinary.uploader.upload(newprofile)
  
     await User.findByIdAndUpdate(
       userId,
